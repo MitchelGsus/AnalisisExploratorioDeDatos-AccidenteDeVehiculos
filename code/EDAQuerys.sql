@@ -34,7 +34,7 @@ FROM (
     GROUP BY AccidenteIndex
 ) AS Resultados;
 
---Pregunta 4: ¿Podemos identificar alguna tendencia en los accidentes según la edad de los vehículos involucrados?
+--Pregunta 4: identificar alguna tendencia en los accidentes según la edad de los vehículos involucrados
 
 
 SELECT COUNT(*) AS Nulos FROM vehiculo WHERE EdadVehiculo is null
@@ -50,7 +50,7 @@ SELECT EdadVehiculo,
 FROM vehiculo WHERE EdadVehiculo is not null) AS SubQuery
 GROUP BY EdadGrupo
 
---Pregunta 5: ¿Existen condiciones climáticas específicas que contribuyan a accidentes severos?
+--Pregunta 5: ¿Existen condiciones climáticas específicas que contribuyan a accidentes fatales?
 
 SELECT * FROM accidente
 
@@ -63,7 +63,8 @@ FROM accidente WHERE Gravedad = 'Fatal' GROUP BY Condiciones_climaticas ORDER BY
 
 SELECT * FROM vehiculo
 
-SELECT ManoIzquierda, COUNT(ManoIzquierda) AS Accidentes_Totales FROM vehiculo WHERE ManoIzquierda is not null GROUP BY ManoIzquierda 
+SELECT ManoIzquierda, COUNT(ManoIzquierda) AS Accidentes_Totales FROM vehiculo
+WHERE ManoIzquierda is not null GROUP BY ManoIzquierda 
 
 
 --Pregunta 7: ¿Existe alguna relación entre los propósitos del viaje y la gravedad de los accidentes?
@@ -75,7 +76,7 @@ SELECT v.PropositoViaje, a.Gravedad FROM vehiculo v JOIN accidente a ON v.Accide
 
 SELECT v.PropositoViaje, COUNT(a.Gravedad) AS TotalGravedad,
 CASE
-	WHEN COUNT(a.Gravedad) BETWEEN 0 AND 1000 THEN 'bajo'
+	WHEN COUNT(a.Gravedad) BETWEEN 0 AND 1000 THEN 'Bajo'
 	WHEN COUNT(a.Gravedad) BETWEEN 1001 AND 3000 THEN 'Moderado'
 	ELSE 'Alto'
 END AS 'Nivel'
@@ -95,3 +96,32 @@ FROM vehiculo v JOIN accidente a ON v.AccidenteIndex = a.AccidenteIndex
 --WHERE a.Condiciones_de_luz = 'Luz'
 GROUP BY a.Condiciones_de_luz, v.PuntoImpacto
 HAVING a.Condiciones_de_luz  = 'Luz' AND v.PuntoImpacto = 'Frontal'
+
+--Pregunta 9: Calcular el Porcentaje de Gravedad
+SELECT * FROM accidente
+SELECT COUNT(*) FROM accidente
+
+SELECT COUNT(Gravedad) FROM accidente
+
+SELECT COUNT(Gravedad) AS TotalGravedad FROM accidente GROUP BY Gravedad
+-- Sí
+SELECT Gravedad,
+COUNT(Gravedad) AS GravedadTotal,
+(COUNT(Gravedad) * 100 / (SELECT COUNT(*) FROM accidente)) AS Porcentaje
+FROM accidente GROUP BY Gravedad 
+
+SELECT Gravedad,
+COUNT(Gravedad) AS GravedadTotal,
+ROUND(COUNT(Gravedad) / CAST((SELECT COUNT(*) FROM accidente) AS float) *100, 2) AS Porcentaje
+FROM accidente GROUP BY Gravedad 
+
+
+--Pregunta 10: Contar el número total de accidentes agrupados por la gravedad y las condiciones del camino
+SELECT Gravedad, Condiciones_del_camino, COUNT(Condiciones_del_camino) AS Total
+FROM accidente GROUP BY Gravedad, Condiciones_del_camino ORDER BY Total DESC
+
+
+--Pregunta 10: Contar el número total de accidentes agrupados por propósito de viaje y gravedad de accidentes?
+SELECT v.PropositoViaje, a.Gravedad, COUNT(a.Gravedad) AS Total
+FROM vehiculo v JOIN accidente a ON v.AccidenteIndex = a.AccidenteIndex
+GROUP BY v.PropositoViaje, a.Gravedad ORDER BY 1 DESC;
